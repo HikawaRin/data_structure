@@ -70,9 +70,9 @@ void insert(int key) {
   *color(root) = 0;
 }
 
-void fix_delete(int n) { 
+void fix_delete(int pa, int n) { 
   if (n == root) { return; }
-  int pa = *p(n), sib = (*ls(pa) == n)? *rs(pa): *ls(pa);
+  int sib = (*ls(pa) == n)? *rs(pa): *ls(pa);
   if (*color(sib) == 1) { 
     rotate(pa, (*ls(pa) == n));
     sib = (*ls(pa) == n)? *rs(pa): *ls(pa);
@@ -80,7 +80,7 @@ void fix_delete(int n) {
   if (*color(*ls(sib)) == 0 && *color(*rs(sib)) == 0) { 
     *color(sib) = 1;
     if (*color(pa) == 1) { *color(pa) = 0; }
-    else { fix_delete(pa); }
+    else { fix_delete(*p(pa), pa); }
   } else { 
     int po_son = (*ls(pa) == n)? *rs(sib): *ls(sib);
     if (*color(po_son) == 0) { 
@@ -103,6 +103,7 @@ void remove(int key) {
   }
   if (nodes[*ip].cnt == 0) { 
     bool need_fix = !(*color(*ip));
+    int pa = *p(*ip);
     if (*ls(*ip) == 0) { 
       need_fix = need_fix && !(*color(*rs(*ip)));
       if (*rs(*ip) != 0) { *p(*rs(*ip)) = *p(*ip); }
@@ -121,10 +122,11 @@ void remove(int key) {
       ip = rs(*ip);
       while (ip != sip) { nodes[*ip].size -= nodes[*sip].cnt; ip = ls(*ip); }
       if (*rs(*ip) != 0) { *p(*rs(*ip)) = *p(*ip); }
+      pa = *p(*ip);
       *ip = *rs(*ip);
       *color(*ip) = 0;
     }
-    if (need_fix) { fix_delete(*ip); }
+    if (need_fix) { fix_delete(pa, *ip); }
     *color(root) = 0;
   }
 }
